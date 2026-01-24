@@ -1,0 +1,44 @@
+const admin = require('firebase-admin');
+const axios = require('axios');
+const cheerio = require('cheerio');
+
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
+}
+
+const db = admin.firestore();
+
+async function get2DLive() {
+    try {
+        const { data } = await axios.get('https://www.set.or.th/en/home', {
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+        });
+        const $ = cheerio.load(data);
+
+        const setIndexText = $(".set-index-value").first().text().trim();
+        const valueText = $(".market-value").first().text().trim();
+
+        if (setIndexText && valueText) {
+            const lastDigitSet = setIndexText.slice(-1); 
+            const integerPart = valueText.split('.')[0]; 
+            const lastDigitValue = integerPart.slice(-1);
+            const final2D = lastDigitSet + lastDigitValue;
+
+            await db.collection('live_data').doc('current').set({
+                set: setIndexText,
+                value: valueText,
+                result: final2D,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            console.log("Success: " + final2D);
+        }
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+get2DLive();
