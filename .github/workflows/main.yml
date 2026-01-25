@@ -1,17 +1,27 @@
-name: 2D Live Scraper
+name: 2D Live Bot
+
 on:
   schedule:
     - cron: '*/1 * * * *'
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '20'
-      - run: npm install
-      - run: node index.js
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install firebase-admin axios
+
+      - name: Run Bot
+        run: node index.js
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
