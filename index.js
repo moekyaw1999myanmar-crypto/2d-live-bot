@@ -1,6 +1,5 @@
 const admin = require('firebase-admin');
 const axios = require('axios');
-const cheerio = require('cheerio');
 
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
@@ -14,27 +13,24 @@ const db = admin.firestore();
 
 async function get2DLive() {
     try {
-        const { data } = await axios.get('https://www.set.or.th/en/home', {
-            headers: { 'User-Agent': 'Mozilla/5.0' }
-        });
-        const $ = cheerio.load(data);
+        const response = await axios.get('https://api.thaistock2d.com/live');
+        const liveData = response.data.live;
 
-        const setIndexText = $(".set-index-value").first().text().trim();
-        const valueText = $(".market-value").first().text().trim();
-
-        if (setIndexText && valueText) {
-            const lastDigitSet = setIndexText.slice(-1); 
-            const integerPart = valueText.split('.')[0]; 
-            const lastDigitValue = integerPart.slice(-1);
-            const final2D = lastDigitSet + lastDigitValue;
+        if (liveData) {
+            const setIndex = liveData.set;
+            const value = liveData.value;
+            const result2D = liveData.twod;
+            const time = liveData.time;
 
             await db.collection('live_data').doc('current').set({
-                set: setIndexText,
-                value: valueText,
-                result: final2D,
+                set: setIndex,
+                value: value,
+                result: result2D,
+                live_time: time,
                 updatedAt: admin.firestore.FieldValue.serverTimestamp()
             });
-            console.log(`SET: ${setIndexText} | VAL: ${valueText} | 2D: ${final2D}`);
+
+            console.log(`SET: ${setIndex} | VAL: ${value} | 2D: ${result2D} | ${time}`);
         }
     } catch (error) {
         console.error("Error:", error.message);
@@ -44,7 +40,7 @@ async function get2DLive() {
 async function startLoop() {
     for (let i = 0; i < 20; i++) {
         await get2DLive();
-        await new Promise(resolve => setTimeout(resolve, 3000)); 
+        await new Promise(resolve => setTimeout(resolve, 3000));
     }
 }
 
