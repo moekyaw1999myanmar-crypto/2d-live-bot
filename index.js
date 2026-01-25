@@ -34,16 +34,14 @@ async function get2DLive() {
                 result: final2D,
                 updatedAt: admin.firestore.FieldValue.serverTimestamp()
             });
-            console.log(`Updated: ${final2D} at ${new Date().toLocaleTimeString()}`);
+            console.log(`SET: ${setIndexText} | VAL: ${valueText} | 2D: ${final2D}`);
         }
     } catch (error) {
-        console.error("Error fetching data:", error.message);
+        console.error("Error:", error.message);
     }
 }
 
-// ၃ စက္ကန့်တစ်ကြိမ် ပတ်မည့် Function
 async function startLoop() {
-    // ၁ မိနစ်အတွင်း အကြိမ် ၂၀ ပတ်မည် (၂၀ x ၃ စက္ကန့် = ၆၀ စက္ကန့်)
     for (let i = 0; i < 20; i++) {
         await get2DLive();
         await new Promise(resolve => setTimeout(resolve, 3000)); 
