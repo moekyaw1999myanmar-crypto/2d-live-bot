@@ -1,27 +1,27 @@
-name: 2D Live Bot
+name: 2D Live Bot Update
 
 on:
   schedule:
-    - cron: '*/1 * * * *'
-  workflow_dispatch:
+    - cron: '*/5 * * * *' # ၅ မိနစ်တစ်ခါ Run မည်
+  workflow_dispatch: # ကိုယ်တိုင်နှိပ်ပြီး Run လို့ရအောင်
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          node-version: '18'
+          python-version: '3.9'
 
       - name: Install dependencies
-        run: npm install firebase-admin axios
+        run: |
+          pip install requests firebase-admin
 
-      - name: Run Bot
-        run: node index.js
+      - name: Run bot
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: python update_data.py
