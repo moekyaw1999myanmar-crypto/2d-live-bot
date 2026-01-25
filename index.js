@@ -17,20 +17,15 @@ async function get2DLive() {
         const liveData = response.data.live;
 
         if (liveData) {
-            const setIndex = liveData.set;
-            const value = liveData.value;
-            const result2D = liveData.twod;
-            const time = liveData.time;
-
             await db.collection('live_data').doc('current').set({
-                set: setIndex,
-                value: value,
-                result: result2D,
-                live_time: time,
+                set: liveData.set,
+                value: liveData.value,
+                result: liveData.twod,
+                live_time: liveData.time,
                 updatedAt: admin.firestore.FieldValue.serverTimestamp()
             });
 
-            console.log(`SET: ${setIndex} | VAL: ${value} | 2D: ${result2D} | ${time}`);
+            console.log(`SET: ${liveData.set} | 2D: ${liveData.twod} | Time: ${liveData.time}`);
         }
     } catch (error) {
         console.error("Error:", error.message);
@@ -45,4 +40,3 @@ async function startLoop() {
 }
 
 startLoop();
- 
