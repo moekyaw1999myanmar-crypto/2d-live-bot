@@ -1,24 +1,29 @@
-name: 2D Live Update Bot
+name: 2D 3s Live Bot
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 jobs:
-  build:
+  run-loop:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
       - name: Install dependencies
-        run: |
-          pip install requests firebase-admin
-      - name: Run update script
+        run: pip install requests firebase-admin
+      - name: Run 3s Loop
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        run: python update_data.py
+        run: |
+          python -c "
+          import subprocess, time
+          start_time = time.time()
+          while time.time() - start_time < 20000:
+              subprocess.run(['python', 'update_data.py'])
+              time.sleep(3)
+          "
