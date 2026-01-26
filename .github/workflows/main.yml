@@ -1,27 +1,22 @@
-name: 2D Live Bot Update
-
+name: Firebase Update
 on:
   schedule:
-    - cron: '*/5 * * * *' # ၅ မိနစ်တစ်ခါ Run မည်
-  workflow_dispatch: # ကိုယ်တိုင်နှိပ်ပြီး Run လို့ရအောင်
+    - cron: '*/15 * * * *' # GitHub Actions ရဲ့ အမြန်ဆုံး အချိန်
+  workflow_dispatch:
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-
       - name: Install dependencies
         run: |
           pip install requests firebase-admin
-
-      - name: Run bot
+      - name: Run update script
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        run: python update_data.py
+        run: python update_firebase.py
