@@ -19,21 +19,33 @@ def fetch_and_update():
         data = response.json()
 
         if 'live' in data:
-            live_data = {
+            live_payload = {
                 "twod": data['live'].get('twod'),
                 "time": data['live'].get('time'),
                 "set": data['live'].get('set'),
                 "value": data['live'].get('value')
             }
-            db.collection('thaistock').document('live_results').set(live_data)
+            db.collection('thaistock').document('live_results').set(live_payload)
 
         if 'result' in data:
             results = data['result']
             for res in results:
-                card_data = {
+                card_payload = {
                     "twod": res.get('twod'),
                     "set": res.get('set'),
                     "value": res.get('value')
+                }
+                
+                if res.get('open_time') == "12:01:00":
+                    db.collection('thaistock').document('result_12').set(card_payload)
+                elif res.get('open_time') == "16:30:00":
+                    db.collection('thaistock').document('result_43').set(card_payload)
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    fetch_and_update()
                 }
                 
                 if res.get('open_time') == "12:01:00":
