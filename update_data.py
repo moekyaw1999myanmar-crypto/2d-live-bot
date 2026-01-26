@@ -35,44 +35,10 @@ def fetch_and_update():
                     "set": res.get('set'),
                     "value": res.get('value')
                 }
-                
                 if res.get('open_time') == "12:01:00":
                     db.collection('thaistock').document('result_12').set(card_payload)
                 elif res.get('open_time') == "16:30:00":
                     db.collection('thaistock').document('result_43').set(card_payload)
-
-    except Exception as e:
-        print(f"Error: {e}")
-
-if __name__ == "__main__":
-    fetch_and_update()
-                }
-                
-                if res.get('open_time') == "12:01:00":
-                    db.collection('thaistock').document('result_12').set(card_data)
-                
-                elif res.get('open_time') == "16:30:00":
-                    db.collection('thaistock').document('result_43').set(card_data)
-
-    except Exception as e:
-        print(f"Error: {e}")
-
-if __name__ == "__main__":
-    fetch_and_update()
-            for res in results:
-                card_data = {
-                    "twod": res.get('twod'),
-                    "set": res.get('set'),
-                    "value": res.get('value')
-                }
-                
-                if res.get('open_time') == "12:01:00":
-                    db.collection('thaistock').document('result_12').set(card_data)
-                    print("12:01 Card updated.")
-                
-                elif res.get('open_time') == "16:30:00":
-                    db.collection('thaistock').document('result_43').set(card_data)
-                    print("16:30 Card updated.")
 
     except Exception as e:
         print(f"Error: {e}")
