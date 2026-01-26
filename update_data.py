@@ -8,15 +8,12 @@ import pytz
 
 def fetch_and_update():
     try:
-        # မြန်မာစံတော်ချိန် (GMT+6:30) သတ်မှတ်ခြင်း
         tz = pytz.timezone('Asia/Yangon')
         now = datetime.now(tz)
         current_time = now.hour * 100 + now.minute
-        day = now.weekday() # 0 = Monday, 6 = Sunday
+        day = now.weekday()
 
-        # စနေ၊ တနင်္ဂနွေ မဟုတ်မှသာ အလုပ်လုပ်မည်
         if day < 5:
-            # မနက် (9:30 - 12:01) သို့မဟုတ် ညနေ (14:00 - 16:30)
             is_live_time = (930 <= current_time <= 1201) or (1400 <= current_time <= 1630)
             
             if is_live_time:
@@ -27,20 +24,20 @@ def fetch_and_update():
                 db = firestore.client()
 
                 url = "https://api.thaistock2d.com/live"
-                data = requests.get(url, timeout=5).json()
+                response = requests.get(url, timeout=3)
+                data = response.json()
 
                 if 'live' in data:
-                    db.collection('thaistock').document('live_results').set(data['live'])
+                    db.collection('thaistock').document('live_results').set(data['live'], merge=True)
 
                 if 'result' in data:
                     for res in data['result']:
                         if res.get('open_time') == "12:01:00":
-                            db.collection('thaistock').document('result_12').set(res)
+                            db.collection('thaistock').document('result_12').set(res, merge=True)
                         elif res.get('open_time') == "16:30:00":
-                            db.collection('thaistock').document('result_43').set(res)
-                print(f"Synced at {now.strftime('%H:%M:%S')}")
-    except Exception as e:
-        print(f"Error: {e}")
+                            db.collection('thaistock').document('result_43').set(res, merge=True)
+    except Exception:
+        pass
 
 if __name__ == "__main__":
     fetch_and_update()
