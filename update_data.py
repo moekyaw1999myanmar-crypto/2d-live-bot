@@ -3,9 +3,8 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import os
 import json
-from datetime import datetime
+import time
 
-# Firebase Secret ကို GitHub မှ ယူခြင်း
 service_account_info = json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT'))
 cred = credentials.Certificate(service_account_info)
 
@@ -16,53 +15,39 @@ db = firestore.client()
 
 def fetch_and_update():
     try:
-        # API မှ data ယူခြင်း
         url = "https://api.thaistock2d.com/live"
         response = requests.get(url)
         data = response.json()
 
-        # ၁။ Live Card အတွက် (2D, Time, Set, Value)
+        # 1. Live Results Update (thaistock/live_results)
         if 'live' in data:
-            live_payload = {
+            live_data = {
                 "twod": data['live'].get('twod'),
                 "time": data['live'].get('time'),
                 "set": data['live'].get('set'),
-                "value": data['live'].get('value'),
-                "date": data['live'].get('date')
+                "value": data['live'].get('value')
             }
-            db.collection('thaistock').document('live_results').set(live_payload)
-            print("Live Card updated.")
+            db.collection('thaistock').document('live_results').set(live_data)
+            print("Live data updated.")
 
-        # ၂။ ၁၂:၀၁/၀၄:၃၀ Card များနှင့် မှတ်တမ်းအတွက်
+        # 2. 12:01 Card Update (thaistock/result_12)
+        # 4:30 Card Update (thaistock/result_43)
         if 'result' in data:
             results = data['result']
-            
-            # (A) thaistock/history ထဲသို့ all_results array သိမ်းခြင်း
-            db.collection('thaistock').document('history').set({"all_results": results})
-            
-            # (B) တစ်ပတ်စာမှတ်တမ်း (history/this_week) အတွက် ပြင်ဆင်ခြင်း
-            weekly_data = {}
-            days_map = {0: 'sun', 1: 'mon', 2: 'tue', 3: 'wed', 4: 'thu', 5: 'fri', 6: 'sat'}
-            
             for res in results:
-                stock_date = res.get('stock_date')
-                open_time = res.get('open_time')
-                twod_val = res.get('twod')
+                card_data = {
+                    "twod": res.get('twod'),
+                    "set": res.get('set'),
+                    "value": res.get('value')
+                }
                 
-                # နေ့အမည်ကို ရှာခြင်း
-                date_obj = datetime.strptime(stock_date, '%Y-%m-%d')
-                day_name = days_map[date_obj.weekday() + 1 if date_obj.weekday() < 6 else 0]
+                if res.get('open_time') == "12:01:00":
+                    db.collection('thaistock').document('result_12').set(card_data)
+                    print("12:01 Card updated.")
                 
-                # ၁၂:၀၁ နှင့် ၀၄:၃၀ ခွဲခြားသိမ်းဆည်းခြင်း
-                if open_time == "12:01:00":
-                    weekly_data[f"{day_name}_12"] = twod_val
-                elif open_time == "16:30:00":
-                    weekly_data[f"{day_name}_43"] = twod_val
-            
-            # history/this_week သို့ ပို့ခြင်း
-            if weekly_data:
-                db.collection('history').document('this_week').set(weekly_data, merge=True)
-                print("Weekly history updated.")
+                elif res.get('open_time') == "16:30:00":
+                    db.collection('thaistock').document('result_43').set(card_data)
+                    print("16:30 Card updated.")
 
     except Exception as e:
         print(f"Error: {e}")
