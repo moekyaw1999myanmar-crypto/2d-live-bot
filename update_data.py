@@ -4,42 +4,26 @@ from firebase_admin import credentials, firestore
 import os
 import json
 
-service_account_info = json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT'))
-cred = credentials.Certificate(service_account_info)
-
-if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
 def fetch_and_update():
     try:
+        service_account_info = json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT'))
+        cred = credentials.Certificate(service_account_info)
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(cred)
+        db = firestore.client()
+
         url = "https://api.thaistock2d.com/live"
-        response = requests.get(url)
-        data = response.json()
+        data = requests.get(url, timeout=5).json()
 
         if 'live' in data:
-            live_payload = {
-                "twod": data['live'].get('twod'),
-                "time": data['live'].get('time'),
-                "set": data['live'].get('set'),
-                "value": data['live'].get('value')
-            }
-            db.collection('thaistock').document('live_results').set(live_payload)
+            db.collection('thaistock').document('live_results').set(data['live'])
 
         if 'result' in data:
-            results = data['result']
-            for res in results:
-                card_payload = {
-                    "twod": res.get('twod'),
-                    "set": res.get('set'),
-                    "value": res.get('value')
-                }
+            for res in data['result']:
                 if res.get('open_time') == "12:01:00":
-                    db.collection('thaistock').document('result_12').set(card_payload)
+                    db.collection('thaistock').document('result_12').set(res)
                 elif res.get('open_time') == "16:30:00":
-                    db.collection('thaistock').document('result_43').set(card_payload)
-
+                    db.collection('thaistock').document('result_43').set(res)
     except Exception as e:
         print(f"Error: {e}")
 
