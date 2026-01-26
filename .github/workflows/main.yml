@@ -2,11 +2,12 @@ name: 2D Realtime Live Bot
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 3 * * *'
+    - cron: '30 7 * * *'
   workflow_dispatch:
 
 jobs:
-  run-nonstop:
+  run-live:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,14 +17,14 @@ jobs:
           python-version: '3.9'
       - name: Install dependencies
         run: pip install requests firebase-admin pytz
-      - name: Run Constant Loop
+      - name: Run Update Script
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
           python -c "
           import subprocess, time
           start_time = time.time()
-          while time.time() - start_time < 20000:
+          while time.time() - start_time < 9300:
               subprocess.run(['python', 'update_data.py'])
-              time.sleep(0.1)
+              time.sleep(3)
           "
