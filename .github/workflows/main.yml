@@ -1,14 +1,16 @@
-name: Firebase Update
+name: 2D Live Update Bot
+
 on:
   schedule:
-    - cron: '*/15 * * * *' # GitHub Actions ရဲ့ အမြန်ဆုံး အချိန်
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 jobs:
-  update:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -19,4 +21,4 @@ jobs:
       - name: Run update script
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        run: python update_firebase.py
+        run: python update_data.py
