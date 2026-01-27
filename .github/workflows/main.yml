@@ -2,7 +2,8 @@ name: 2D Realtime Live Bot
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 3 * * *'
+    - cron: '30 7 * * *'
   workflow_dispatch:
 
 jobs:
@@ -23,7 +24,7 @@ jobs:
           python -c "
           import subprocess, time
           start_time = time.time()
-          while time.time() - start_time < 21000:
+          while time.time() - start_time < 10800:
               subprocess.run(['python', 'update_data.py'])
               time.sleep(1)
           "
