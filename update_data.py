@@ -14,17 +14,19 @@ def fetch_and_update():
         day = now.weekday()
 
         if day < 5:
-            is_live_time = (930 <= current_time <= 1201) or (1400 <= current_time <= 1630)
-            
+            is_live_time = (930 <= current_time <= 1205) or (1400 <= current_time <= 1635)
+
             if is_live_time:
                 service_account_info = json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT'))
                 cred = credentials.Certificate(service_account_info)
+                
                 if not firebase_admin._apps:
                     firebase_admin.initialize_app(cred)
+                
                 db = firestore.client()
 
                 url = "https://api.thaistock2d.com/live"
-                response = requests.get(url, timeout=3)
+                response = requests.get(url, timeout=5)
                 data = response.json()
 
                 if 'live' in data:
