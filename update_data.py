@@ -14,7 +14,7 @@ def fetch_and_update():
         day = now.weekday()
 
         if day < 5:
-            is_live_time = (930 <= current_time <= 1205) or (1400 <= current_time <= 1635)
+            is_live_time = (930 <= current_time <= 1235) or (1400 <= current_time <= 1705)
 
             if is_live_time:
                 service_account_info = json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT'))
