@@ -11,7 +11,7 @@ def fetch_and_update():
         tz = pytz.timezone('Asia/Yangon')
         now = datetime.now(tz)
         current_time = now.hour * 100 + now.minute
-        day_name = now.strftime('%a').lower() # mon, tue, wed...
+        day_name = now.strftime('%a').lower()
         day = now.weekday()
 
         if day < 5:
@@ -20,7 +20,7 @@ def fetch_and_update():
             
             if not firebase_admin._apps:
                 firebase_admin.initialize_app(cred, {
-                    'databaseURL': 'https://myanmar2d3d-app-default-rtdb.firebaseio.com'
+                    'databaseURL': 'https://myanmar2d3d-app-default-rtdb.asia-southeast1.firebasedatabase.app'
                 })
             
             url = "https://api.thaistock2d.com/live"
