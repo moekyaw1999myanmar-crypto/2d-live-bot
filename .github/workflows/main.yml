@@ -23,7 +23,7 @@ jobs:
         run: |
           python -c "
           import subprocess, time
-          end_time = time.time() + 9100
+          end_time = time.time() + 10800
           while time.time() < end_time:
               subprocess.run(['python', 'update_data.py'])
               time.sleep(2)
