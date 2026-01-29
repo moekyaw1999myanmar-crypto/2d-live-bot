@@ -11,6 +11,7 @@ def fetch_and_update():
         tz = pytz.timezone('Asia/Yangon')
         now = datetime.now(tz)
         current_time = now.hour * 100 + now.minute
+        day_name = now.strftime('%a').lower() # mon, tue, wed...
         day = now.weekday()
 
         if day < 5:
@@ -37,6 +38,7 @@ def fetch_and_update():
                     for res in results:
                         if res.get('open_time') == "12:01:00":
                             db.reference('thaistock/result_12').set(res)
+                            db.reference(f'history/this_week/{day_name}/result_12').set(res.get('twod'))
 
             elif 1400 <= current_time <= 1631:
                 if live_data:
@@ -46,6 +48,7 @@ def fetch_and_update():
                     for res in results:
                         if res.get('open_time') == "16:30:00":
                             db.reference('thaistock/result_43').set(res)
+                            db.reference(f'history/this_week/{day_name}/result_43').set(res.get('twod'))
 
     except Exception as e:
         print(f"Error: {e}")
